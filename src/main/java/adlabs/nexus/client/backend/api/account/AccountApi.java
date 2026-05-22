@@ -8,7 +8,7 @@ import retrofit2.http.Query;
 
 import java.util.List;
 
-interface AccountApi {
+public interface AccountApi {
 
     @GET("api/account/{stakeAddress}/info")
     Call<AccountInformation> getAccountInfo(@Path("stakeAddress") String stakeAddress,
