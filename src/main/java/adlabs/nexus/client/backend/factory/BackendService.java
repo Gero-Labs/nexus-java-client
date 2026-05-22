@@ -5,6 +5,7 @@ import adlabs.nexus.client.backend.api.address.AddressService;
 import adlabs.nexus.client.backend.api.asset.AssetService;
 import adlabs.nexus.client.backend.api.block.BlockService;
 import adlabs.nexus.client.backend.api.epoch.EpochService;
+import adlabs.nexus.client.backend.api.network.NetworkService;
 import adlabs.nexus.client.backend.api.pool.PoolService;
 import adlabs.nexus.client.backend.api.transaction.TransactionService;
 
@@ -20,6 +21,8 @@ public interface BackendService {
     BlockService getBlockService();
 
     EpochService getEpochService();
+
+    NetworkService getNetworkService();
 
     PoolService getPoolService();
 

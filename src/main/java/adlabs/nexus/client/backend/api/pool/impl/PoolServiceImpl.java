@@ -43,4 +43,9 @@ public class PoolServiceImpl implements PoolService {
     public Result<PoolDetails> getPoolEpochHistory(Network network, String poolId, int epoch) throws ApiException {
         return ApiUtil.process(api.getPoolEpochHistory(poolId, epoch, network.queryValue()));
     }
+
+    @Override
+    public Result<List<PoolHistory>> getPoolHistory(Network network, String poolId) throws ApiException {
+        return ApiUtil.process(api.getPoolHistory(poolId, network.queryValue()));
+    }
 }

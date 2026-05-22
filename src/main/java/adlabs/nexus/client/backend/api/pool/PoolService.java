@@ -20,4 +20,7 @@ public interface PoolService {
 
     /** Per-epoch history for a single pool (replaces the legacy Koios pool-history call). */
     Result<PoolDetails> getPoolEpochHistory(Network network, String poolId, int epoch) throws ApiException;
+
+    /** Full per-epoch history for a single pool. */
+    Result<List<PoolHistory>> getPoolHistory(Network network, String poolId) throws ApiException;
 }

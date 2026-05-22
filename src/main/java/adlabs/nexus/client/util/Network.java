@@ -7,7 +7,10 @@ package adlabs.nexus.client.util;
 public enum Network {
     MAINNET("cardano-mainnet"),
     PREPROD("cardano-preprod"),
-    PREVIEW("cardano-preview");
+    PREVIEW("cardano-preview"),
+    APEX_PRIME_MAINNET("apex-prime-mainnet"),
+    APEX_VECTOR_MAINNET("apex-vector-mainnet"),
+    APEX_VECTOR_TESTNET("apex-vector-testnet");
 
     private final String queryValue;
 
