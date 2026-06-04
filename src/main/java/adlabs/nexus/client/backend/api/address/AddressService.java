@@ -15,6 +15,12 @@ public interface AddressService {
     Result<List<AddressTransaction>> getAddressTransactions(Network network, String address,
                                                             int page, int pageSize) throws ApiException;
 
+    /** As {@link #getAddressTransactions(Network, String, int, int)} but only returns transactions
+     *  at or after {@code fromBlockHeight}. A null {@code fromBlockHeight} applies no cutoff. */
+    Result<List<AddressTransaction>> getAddressTransactions(Network network, String address,
+                                                            int page, int pageSize,
+                                                            Integer fromBlockHeight) throws ApiException;
+
     Result<List<AddressUtxo>> getAddressUtxos(Network network, String address,
                                               int page, int pageSize) throws ApiException;
 

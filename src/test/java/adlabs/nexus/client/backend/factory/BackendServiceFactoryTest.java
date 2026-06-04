@@ -38,6 +38,7 @@ class BackendServiceFactoryTest {
         assertNotNull(backend.getAssetService());
         assertNotNull(backend.getBlockService());
         assertNotNull(backend.getEpochService());
+        assertNotNull(backend.getNetworkService());
         assertNotNull(backend.getPoolService());
         assertNotNull(backend.getTransactionService());
 

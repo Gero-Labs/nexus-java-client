@@ -30,4 +30,8 @@ public interface PoolApi {
     Call<PoolDetails> getPoolEpochHistory(@Path("poolId") String poolId,
                                           @Path("epoch") int epoch,
                                           @Query("network") String network);
+
+    @GET("api/pools/{poolId}/history")
+    Call<List<PoolHistory>> getPoolHistory(@Path("poolId") String poolId,
+                                           @Query("network") String network);
 }

@@ -4,6 +4,7 @@ import adlabs.nexus.client.backend.api.base.Result;
 import adlabs.nexus.client.backend.api.pool.impl.PoolServiceImpl;
 import adlabs.nexus.client.backend.api.pool.model.Pool;
 import adlabs.nexus.client.backend.api.pool.model.PoolDetails;
+import adlabs.nexus.client.backend.api.pool.model.PoolHistory;
 import adlabs.nexus.client.http.RetrofitClient;
 import adlabs.nexus.client.util.Network;
 import okhttp3.mockwebserver.MockResponse;
@@ -13,7 +14,10 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.time.Duration;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -64,5 +68,34 @@ class PoolServiceTest {
 
         RecordedRequest req = server.takeRequest();
         assertEquals("/api/pools/pool1abc/epochs/520?network=cardano-mainnet", req.getPath());
+    }
+
+    @Test
+    void getPoolHistory_deserializesList() throws Exception {
+        server.enqueue(new MockResponse().setResponseCode(200).setBody(
+                "[{\"epochNo\":520,\"activeStake\":\"123456789\",\"activeStakePct\":1.25," +
+                "\"saturationPct\":42.7,\"blockCnt\":12,\"delegatorCnt\":345," +
+                "\"margin\":0.02,\"fixedCost\":\"340000000\",\"poolFees\":\"500000\"," +
+                "\"delegRewards\":\"987654321\",\"epochRos\":3.14}]"));
+
+        Result<List<PoolHistory>> result = service.getPoolHistory(Network.MAINNET, "pool1abc");
+
+        assertTrue(result.isSuccessful());
+        assertEquals(1, result.getValue().size());
+        PoolHistory h = result.getValue().get(0);
+        assertEquals(520, h.getEpochNo());
+        assertEquals(new BigInteger("123456789"), h.getActiveStake());
+        assertEquals(new BigDecimal("1.25"), h.getActiveStakePct());
+        assertEquals(new BigDecimal("42.7"), h.getSaturationPct());
+        assertEquals(12, h.getBlockCnt());
+        assertEquals(345, h.getDelegatorCnt());
+        assertEquals(new BigDecimal("0.02"), h.getMargin());
+        assertEquals(new BigInteger("340000000"), h.getFixedCost());
+        assertEquals(new BigInteger("500000"), h.getPoolFees());
+        assertEquals(new BigInteger("987654321"), h.getDelegRewards());
+        assertEquals(new BigDecimal("3.14"), h.getEpochRos());
+
+        RecordedRequest req = server.takeRequest();
+        assertEquals("/api/pools/pool1abc/history?network=cardano-mainnet", req.getPath());
     }
 }
