@@ -18,7 +18,8 @@ public interface AddressApi {
     Call<List<AddressTransaction>> getAddressTransactions(@Path("address") String address,
                                                           @Query("network") String network,
                                                           @Query("page") Integer page,
-                                                          @Query("pageSize") Integer pageSize);
+                                                          @Query("pageSize") Integer pageSize,
+                                                          @Query("fromBlockHeight") Integer fromBlockHeight);
 
     @GET("api/addresses/{address}/utxos")
     Call<List<AddressUtxo>> getAddressUtxos(@Path("address") String address,
