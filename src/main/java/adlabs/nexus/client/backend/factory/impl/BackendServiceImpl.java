@@ -10,6 +10,8 @@ import adlabs.nexus.client.backend.api.block.BlockService;
 import adlabs.nexus.client.backend.api.block.impl.BlockServiceImpl;
 import adlabs.nexus.client.backend.api.epoch.EpochService;
 import adlabs.nexus.client.backend.api.epoch.impl.EpochServiceImpl;
+import adlabs.nexus.client.backend.api.marketdata.MarketDataService;
+import adlabs.nexus.client.backend.api.marketdata.impl.MarketDataServiceImpl;
 import adlabs.nexus.client.backend.api.network.NetworkService;
 import adlabs.nexus.client.backend.api.network.impl.NetworkServiceImpl;
 import adlabs.nexus.client.backend.api.pool.PoolService;
@@ -26,6 +28,7 @@ public class BackendServiceImpl implements BackendService {
     private final AssetService assetService;
     private final BlockService blockService;
     private final EpochService epochService;
+    private final MarketDataService marketDataService;
     private final NetworkService networkService;
     private final PoolService poolService;
     private final TransactionService transactionService;
@@ -36,6 +39,7 @@ public class BackendServiceImpl implements BackendService {
         this.assetService = new AssetServiceImpl(retrofit);
         this.blockService = new BlockServiceImpl(retrofit);
         this.epochService = new EpochServiceImpl(retrofit);
+        this.marketDataService = new MarketDataServiceImpl(retrofit);
         this.networkService = new NetworkServiceImpl(retrofit);
         this.poolService = new PoolServiceImpl(retrofit);
         this.transactionService = new TransactionServiceImpl(retrofit);
@@ -64,6 +68,11 @@ public class BackendServiceImpl implements BackendService {
     @Override
     public EpochService getEpochService() {
         return epochService;
+    }
+
+    @Override
+    public MarketDataService getMarketDataService() {
+        return marketDataService;
     }
 
     @Override
