@@ -49,7 +49,7 @@ class TransactionServiceTest {
         assertEquals("addr1in", result.getValue().getInputs().get(0).getPaymentAddr().getBech32());
 
         RecordedRequest req = server.takeRequest();
-        assertEquals("/v1/transactions/tx1?network=cardano-mainnet", req.getPath());
+        assertEquals("/api/transactions/tx1?network=cardano-mainnet", req.getPath());
     }
 
     @Test
@@ -63,7 +63,7 @@ class TransactionServiceTest {
 
         RecordedRequest req = server.takeRequest();
         assertEquals("POST", req.getMethod());
-        assertEquals("/v1/transactions/submit?network=cardano-preprod", req.getPath());
+        assertEquals("/api/transactions/submit?network=cardano-preprod", req.getPath());
         assertEquals("84a400818258...", req.getBody().readUtf8());
     }
 
@@ -73,7 +73,7 @@ class TransactionServiceTest {
         service.getTransactionsCbor(Network.MAINNET, java.util.List.of("h1", "h2"));
         RecordedRequest req = server.takeRequest();
         assertEquals("POST", req.getMethod());
-        assertEquals("/v1/transactions/cbor?network=cardano-mainnet", req.getPath());
+        assertEquals("/api/transactions/cbor?network=cardano-mainnet", req.getPath());
         assertEquals("[\"h1\",\"h2\"]", req.getBody().readUtf8());
     }
 }

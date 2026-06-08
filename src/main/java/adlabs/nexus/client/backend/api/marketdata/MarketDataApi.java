@@ -11,11 +11,11 @@ import java.util.List;
 
 public interface MarketDataApi {
 
-    @GET("api/v1/prices/historical/candles")
+    @GET("api/prices/historical/candles")
     Call<List<Candle>> getHistoricalCandles(@Query("assetId") String assetId,
                                             @Query("resolution") String resolution,
                                             @Query("from") Long from);
 
-    @GET("api/v1/market/prices/{assetId}")
+    @GET("api/market/prices/{assetId}")
     Call<MarketPrice> getMarketPrice(@Path("assetId") String assetId);
 }

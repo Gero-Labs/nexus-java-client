@@ -3,7 +3,7 @@ package adlabs.nexus.client.backend.api.marketdata.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 
-/** A token's market data from {@code /api/v1/market/prices/{assetId}} (price, market cap, supply, etc.). */
+/** A token's market data from {@code /api/market/prices/{assetId}} (price, market cap, supply, etc.). */
 @Data
 @Builder
 @NoArgsConstructor
