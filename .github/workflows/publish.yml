@@ -4,7 +4,7 @@ on:
     tags: ['v*']
 jobs:
   publish:
-    runs-on: ubuntu-latest
+    runs-on: gero-plain
     permissions:
       contents: read
       packages: write
