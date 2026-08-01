@@ -13,27 +13,27 @@ import java.util.List;
 
 public interface TransactionApi {
 
-    @GET("v1/transactions/{txHash}")
+    @GET("api/transactions/{txHash}")
     Call<Transaction> getTransaction(@Path("txHash") String txHash,
                                      @Query("network") String network);
 
-    @GET("v1/transactions/{txHash}/cbor")
+    @GET("api/transactions/{txHash}/cbor")
     Call<TransactionCbor> getTransactionCbor(@Path("txHash") String txHash,
                                              @Query("network") String network);
 
-    @POST("v1/transactions/cbor")
+    @POST("api/transactions/cbor")
     Call<List<TransactionCbor>> getTransactionsCbor(@Query("network") String network,
                                                     @Body List<String> txHashes);
 
-    @POST("v1/transactions/submit")
+    @POST("api/transactions/submit")
     Call<String> submitTransaction(@Query("network") String network,
                                    @Body RequestBody cborHex);
 
-    @GET("v1/transactions/{txHash}/utxos")
+    @GET("api/transactions/{txHash}/utxos")
     Call<TransactionUtxos> getTransactionUtxos(@Path("txHash") String txHash,
                                                @Query("network") String network);
 
-    @POST("v1/transactions/utxos")
+    @POST("api/transactions/utxos")
     Call<List<Utxo>> getTransactionsUtxos(@Query("network") String network,
                                           @Body List<UtxoRequestItem> items);
 }
