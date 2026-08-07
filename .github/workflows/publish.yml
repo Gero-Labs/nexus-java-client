@@ -7,21 +7,29 @@ jobs:
     runs-on: gero-plain
     permissions:
       contents: read
-      packages: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: '17'
           cache: maven
-          server-id: github
+          server-id: central
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
-      - name: Publish to GitHub Packages
-        # maven.test.skip (not just skipTests) so drifted test sources don't block
-        # the release; unit tests run in build.yml on PRs.
-        run: mvn -B deploy -Dmaven.test.skip=true
+      - name: Import GPG key
+        run: |
+          echo "${GPG_PRIVATE_KEY}" | gpg --batch --import
+          echo "default-cache-ttl 7200" >> ~/.gnupg/gpg-agent.conf
+          echo "max-cache-ttl 7200" >> ~/.gnupg/gpg-agent.conf
         env:
-          MAVEN_USERNAME: ${{ github.actor }}
-          MAVEN_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+      # A maintainer must configure CENTRAL_TOKEN_USERNAME, CENTRAL_TOKEN_PASSWORD,
+      # GPG_PRIVATE_KEY and GPG_PASSPHRASE as repo secrets for this to work.
+      - name: Publish to Maven Central
+        run: mvn -B -Prelease deploy -Dmaven.test.skip=true
+        env:
+          MAVEN_USERNAME: ${{ secrets.CENTRAL_TOKEN_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.CENTRAL_TOKEN_PASSWORD }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
