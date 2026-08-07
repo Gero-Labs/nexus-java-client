@@ -26,10 +26,10 @@ jobs:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
       # A maintainer must configure CENTRAL_TOKEN_USERNAME, CENTRAL_TOKEN_PASSWORD,
       # GPG_PRIVATE_KEY and GPG_PASSPHRASE as repo secrets for this to work.
+      # Skip tests to allow drifted/absent test sources; unit tests run in build.yml on PRs.
       - name: Publish to Maven Central
         run: mvn -B -Prelease deploy -Dmaven.test.skip=true
         env:
           MAVEN_USERNAME: ${{ secrets.CENTRAL_TOKEN_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.CENTRAL_TOKEN_PASSWORD }}
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
