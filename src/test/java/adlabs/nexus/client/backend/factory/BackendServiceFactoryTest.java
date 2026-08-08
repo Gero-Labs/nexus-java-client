@@ -46,4 +46,12 @@ class BackendServiceFactoryTest {
         assertTrue(result.isSuccessful());
         assertEquals("blk1", result.getValue().getHash());
     }
+
+    @Test
+    void factory_wiresMetadataAndScriptServices() {
+        BackendService svc = BackendServiceFactory.getNexusBackendService(
+                server.url("/").toString(), "key");
+        assertNotNull(svc.getMetadataService());
+        assertNotNull(svc.getScriptService());
+    }
 }

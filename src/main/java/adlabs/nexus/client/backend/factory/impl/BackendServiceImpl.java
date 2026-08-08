@@ -12,10 +12,14 @@ import adlabs.nexus.client.backend.api.epoch.EpochService;
 import adlabs.nexus.client.backend.api.epoch.impl.EpochServiceImpl;
 import adlabs.nexus.client.backend.api.marketdata.MarketDataService;
 import adlabs.nexus.client.backend.api.marketdata.impl.MarketDataServiceImpl;
+import adlabs.nexus.client.backend.api.metadata.MetadataService;
+import adlabs.nexus.client.backend.api.metadata.impl.MetadataServiceImpl;
 import adlabs.nexus.client.backend.api.network.NetworkService;
 import adlabs.nexus.client.backend.api.network.impl.NetworkServiceImpl;
 import adlabs.nexus.client.backend.api.pool.PoolService;
 import adlabs.nexus.client.backend.api.pool.impl.PoolServiceImpl;
+import adlabs.nexus.client.backend.api.script.ScriptService;
+import adlabs.nexus.client.backend.api.script.impl.ScriptServiceImpl;
 import adlabs.nexus.client.backend.api.transaction.TransactionService;
 import adlabs.nexus.client.backend.api.transaction.impl.TransactionServiceImpl;
 import adlabs.nexus.client.backend.factory.BackendService;
@@ -29,8 +33,10 @@ public class BackendServiceImpl implements BackendService {
     private final BlockService blockService;
     private final EpochService epochService;
     private final MarketDataService marketDataService;
+    private final MetadataService metadataService;
     private final NetworkService networkService;
     private final PoolService poolService;
+    private final ScriptService scriptService;
     private final TransactionService transactionService;
 
     public BackendServiceImpl(Retrofit retrofit) {
@@ -40,8 +46,10 @@ public class BackendServiceImpl implements BackendService {
         this.blockService = new BlockServiceImpl(retrofit);
         this.epochService = new EpochServiceImpl(retrofit);
         this.marketDataService = new MarketDataServiceImpl(retrofit);
+        this.metadataService = new MetadataServiceImpl(retrofit);
         this.networkService = new NetworkServiceImpl(retrofit);
         this.poolService = new PoolServiceImpl(retrofit);
+        this.scriptService = new ScriptServiceImpl(retrofit);
         this.transactionService = new TransactionServiceImpl(retrofit);
     }
 
@@ -76,6 +84,11 @@ public class BackendServiceImpl implements BackendService {
     }
 
     @Override
+    public MetadataService getMetadataService() {
+        return metadataService;
+    }
+
+    @Override
     public NetworkService getNetworkService() {
         return networkService;
     }
@@ -83,6 +96,11 @@ public class BackendServiceImpl implements BackendService {
     @Override
     public PoolService getPoolService() {
         return poolService;
+    }
+
+    @Override
+    public ScriptService getScriptService() {
+        return scriptService;
     }
 
     @Override
