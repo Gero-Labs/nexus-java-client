@@ -3,6 +3,7 @@ package adlabs.nexus.client.backend.api.asset.impl;
 import adlabs.nexus.client.backend.api.asset.AssetApi;
 import adlabs.nexus.client.backend.api.asset.AssetService;
 import adlabs.nexus.client.backend.api.asset.model.AssetDetailedInformation;
+import adlabs.nexus.client.backend.api.asset.model.AssetHolder;
 import adlabs.nexus.client.backend.api.asset.model.PaymentAddress;
 import adlabs.nexus.client.backend.api.base.ApiUtil;
 import adlabs.nexus.client.backend.api.base.Result;
@@ -36,5 +37,11 @@ public class AssetServiceImpl implements AssetService {
     public Result<List<PaymentAddress>> getNftAddress(Network network, String assetPolicy,
                                                       String assetName) throws ApiException {
         return ApiUtil.process(api.getNftAddress(network.queryValue(), assetPolicy, assetName));
+    }
+
+    @Override
+    public Result<List<AssetHolder>> getAssetHolders(Network network, String unit, int page,
+                                                     int pageSize) throws ApiException {
+        return ApiUtil.process(api.getAssetHolders(unit, network.queryValue(), page, pageSize));
     }
 }
