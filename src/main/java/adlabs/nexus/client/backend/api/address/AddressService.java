@@ -21,6 +21,13 @@ public interface AddressService {
                                                             int page, int pageSize,
                                                             Integer fromBlockHeight) throws ApiException;
 
+    /** Transactions in the [fromBlockHeight, toBlockHeight] block range (null = no cutoff),
+     *  ordered by {@code order} ("asc"/"desc"; default server-side is asc). */
+    Result<List<AddressTransaction>> getAddressTransactions(Network network, String address,
+                                                            int page, int pageSize,
+                                                            Integer fromBlockHeight, Integer toBlockHeight,
+                                                            String order) throws ApiException;
+
     Result<List<AddressUtxo>> getAddressUtxos(Network network, String address,
                                               int page, int pageSize) throws ApiException;
 

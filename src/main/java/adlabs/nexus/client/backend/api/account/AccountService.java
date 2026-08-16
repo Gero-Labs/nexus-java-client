@@ -21,4 +21,10 @@ public interface AccountService {
     /** {@code fromBlockHeight} is required by Nexus; pass {@code 1} for the full history. */
     Result<List<AccountTransaction>> getAccountTransactions(Network network, String stakeAddress,
                                                             int fromBlockHeight) throws ApiException;
+
+    /** Transactions in the [fromBlockHeight, toBlockHeight] block range (null to = no cutoff),
+     *  ordered by {@code order} ("asc"/"desc"). */
+    Result<List<AccountTransaction>> getAccountTransactions(Network network, String stakeAddress,
+                                                            int fromBlockHeight, Integer toBlockHeight,
+                                                            String order) throws ApiException;
 }

@@ -29,5 +29,7 @@ public interface AccountApi {
     @GET("api/account/{stakeAddress}/txs")
     Call<List<AccountTransaction>> getAccountTransactions(@Path("stakeAddress") String stakeAddress,
                                                           @Query("network") String network,
-                                                          @Query("from") Integer fromBlockHeight);
+                                                          @Query("from") Integer fromBlockHeight,
+                                                          @Query("to") Integer toBlockHeight,
+                                                          @Query("order") String order);
 }

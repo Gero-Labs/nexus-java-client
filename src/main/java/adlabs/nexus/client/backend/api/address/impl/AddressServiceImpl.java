@@ -34,7 +34,15 @@ public class AddressServiceImpl implements AddressService {
     public Result<List<AddressTransaction>> getAddressTransactions(Network network, String address,
                                                                    int page, int pageSize,
                                                                    Integer fromBlockHeight) throws ApiException {
-        return ApiUtil.process(api.getAddressTransactions(address, network.queryValue(), page, pageSize, fromBlockHeight));
+        return ApiUtil.process(api.getAddressTransactions(address, network.queryValue(), page, pageSize, fromBlockHeight, null, null));
+    }
+
+    @Override
+    public Result<List<AddressTransaction>> getAddressTransactions(Network network, String address,
+                                                                   int page, int pageSize,
+                                                                   Integer fromBlockHeight, Integer toBlockHeight,
+                                                                   String order) throws ApiException {
+        return ApiUtil.process(api.getAddressTransactions(address, network.queryValue(), page, pageSize, fromBlockHeight, toBlockHeight, order));
     }
 
     @Override

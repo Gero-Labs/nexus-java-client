@@ -19,7 +19,9 @@ public interface AddressApi {
                                                           @Query("network") String network,
                                                           @Query("page") Integer page,
                                                           @Query("pageSize") Integer pageSize,
-                                                          @Query("fromBlockHeight") Integer fromBlockHeight);
+                                                          @Query("fromBlockHeight") Integer fromBlockHeight,
+                                                          @Query("toBlockHeight") Integer toBlockHeight,
+                                                          @Query("order") String order);
 
     @GET("api/addresses/{address}/utxos")
     Call<List<AddressUtxo>> getAddressUtxos(@Path("address") String address,

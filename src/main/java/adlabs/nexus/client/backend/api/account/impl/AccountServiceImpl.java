@@ -42,6 +42,13 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public Result<List<AccountTransaction>> getAccountTransactions(Network network, String stakeAddress,
                                                                    int fromBlockHeight) throws ApiException {
-        return ApiUtil.process(api.getAccountTransactions(stakeAddress, network.queryValue(), fromBlockHeight));
+        return ApiUtil.process(api.getAccountTransactions(stakeAddress, network.queryValue(), fromBlockHeight, null, null));
+    }
+
+    @Override
+    public Result<List<AccountTransaction>> getAccountTransactions(Network network, String stakeAddress,
+                                                                   int fromBlockHeight, Integer toBlockHeight,
+                                                                   String order) throws ApiException {
+        return ApiUtil.process(api.getAccountTransactions(stakeAddress, network.queryValue(), fromBlockHeight, toBlockHeight, order));
     }
 }
