@@ -40,8 +40,31 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public Result<List<AccountAsset>> getAccountAssets(Network network, String stakeAddress,
+                                                       int page, int pageSize) throws ApiException {
+        return getAccountAssets(network, stakeAddress, null, page, pageSize);
+    }
+
+    @Override
+    public Result<List<AccountAsset>> getAccountAssets(Network network, String stakeAddress, String policyId,
+                                                       int page, int pageSize) throws ApiException {
+        return ApiUtil.process(api.getAccountAssets(stakeAddress, network.queryValue(), policyId, page, pageSize));
+    }
+
+    @Override
     public Result<List<AccountTransaction>> getAccountTransactions(Network network, String stakeAddress,
                                                                    int fromBlockHeight) throws ApiException {
-        return ApiUtil.process(api.getAccountTransactions(stakeAddress, network.queryValue(), fromBlockHeight));
+        // null order/to: leave the server defaults alone, so this overload behaves exactly
+        // as it did before the parameters were exposed.
+        return ApiUtil.process(
+                api.getAccountTransactions(stakeAddress, network.queryValue(), fromBlockHeight, null, null));
+    }
+
+    @Override
+    public Result<List<AccountTransaction>> getAccountTransactions(Network network, String stakeAddress,
+                                                                   int fromBlockHeight, Integer toBlockHeight,
+                                                                   String order) throws ApiException {
+        return ApiUtil.process(
+                api.getAccountTransactions(stakeAddress, network.queryValue(), fromBlockHeight, toBlockHeight, order));
     }
 }
