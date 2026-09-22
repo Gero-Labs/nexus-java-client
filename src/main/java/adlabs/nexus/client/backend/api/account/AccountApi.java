@@ -26,8 +26,17 @@ public interface AccountApi {
     Call<List<AccountUtxo>> getAccountUtxos(@Path("stakeAddress") String stakeAddress,
                                             @Query("network") String network);
 
+    @GET("api/account/{stakeAddress}/assets")
+    Call<List<AccountAsset>> getAccountAssets(@Path("stakeAddress") String stakeAddress,
+                                              @Query("network") String network,
+                                              @Query("policy") String policyId,
+                                              @Query("page") Integer page,
+                                              @Query("pageSize") Integer pageSize);
+
     @GET("api/account/{stakeAddress}/txs")
     Call<List<AccountTransaction>> getAccountTransactions(@Path("stakeAddress") String stakeAddress,
                                                           @Query("network") String network,
-                                                          @Query("from") Integer fromBlockHeight);
+                                                          @Query("from") Integer fromBlockHeight,
+                                                          @Query("to") Integer toBlockHeight,
+                                                          @Query("order") String order);
 }
