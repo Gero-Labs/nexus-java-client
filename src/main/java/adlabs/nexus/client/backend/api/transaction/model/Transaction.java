@@ -26,6 +26,19 @@ public class Transaction {
     private String totalOutput;
     private String fee;
     private String deposit;
+    /**
+     * Whether the transaction's Plutus scripts all succeeded. Null where the provider does
+     * not report it. Distinct from {@link TxPlutusContract#getValidContract()}, which is
+     * per-script-execution; this one is transaction-level.
+     */
+    @JsonProperty("valid_contract")
+    private Boolean validContract;
+    /**
+     * Zero-based position of the transaction within its block, so it can be identified by
+     * (block, index) rather than by hash alone. Null where the provider does not report it.
+     * Serialized as {@code index}, not snake_case, so no @JsonProperty is needed.
+     */
+    private Integer index;
     @JsonProperty("invalid_before")
     private String invalidBefore;
     @JsonProperty("invalid_after")

@@ -76,4 +76,45 @@ class TransactionServiceTest {
         assertEquals("/api/transactions/cbor?network=cardano-mainnet", req.getPath());
         assertEquals("[\"h1\",\"h2\"]", req.getBody().readUtf8());
     }
+
+    @Test
+    void getTransaction_mapsValidContractAndIndex() throws Exception {
+        // Shape verified against mainnet tx 4847714e...c6710d25: both fields are top-level,
+        // valid_contract is snake_case, index is not.
+        server.enqueue(new MockResponse().setResponseCode(200).setBody(
+                "{\"txHash\":\"tx1\",\"valid_contract\":true,\"index\":5,\"fee\":\"170000\"}"));
+
+        Result<Transaction> result = service.getTransaction(Network.MAINNET, "tx1");
+
+        assertTrue(result.isSuccessful());
+        assertEquals(Boolean.TRUE, result.getValue().getValidContract());
+        assertEquals(Integer.valueOf(5), result.getValue().getIndex());
+    }
+
+    @Test
+    void getTransaction_indexZeroIsNotReadAsAbsent() throws Exception {
+        // index 0 is the first transaction in a block, not a missing value.
+        server.enqueue(new MockResponse().setResponseCode(200).setBody(
+                "{\"txHash\":\"tx1\",\"valid_contract\":false,\"index\":0}"));
+
+        Result<Transaction> result = service.getTransaction(Network.MAINNET, "tx1");
+
+        assertTrue(result.isSuccessful());
+        assertEquals(Integer.valueOf(0), result.getValue().getIndex());
+        assertEquals(Boolean.FALSE, result.getValue().getValidContract());
+    }
+
+    @Test
+    void getTransaction_absentValidContractAndIndexStayNull() throws Exception {
+        // Providers that do not report them (and networks with no yaci datasource for the
+        // index enrichment) omit both; they must not default to false/0.
+        server.enqueue(new MockResponse().setResponseCode(200).setBody(
+                "{\"txHash\":\"tx1\",\"fee\":\"170000\"}"));
+
+        Result<Transaction> result = service.getTransaction(Network.MAINNET, "tx1");
+
+        assertTrue(result.isSuccessful());
+        assertNull(result.getValue().getValidContract());
+        assertNull(result.getValue().getIndex());
+    }
 }
