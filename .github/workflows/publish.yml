@@ -2,6 +2,11 @@ name: publish
 on:
   push:
     tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Tag or SHA to publish (must already carry the intended pom version)'
+        required: true
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -9,6 +14,35 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
+
+      # Without this the job dies later at "gpg --batch --import" reading an empty
+      # variable, which says nothing about the cause. Presence is tested via a length
+      # check so no secret value is ever echoed, compared, or written to the log.
+      # OX Agent: Sensitive Data Protection prevented — secrets stay in the secret store,
+      # only their presence is tested, never their value.
+      - name: Check publishing credentials are configured
+        env:
+          CENTRAL_TOKEN_USERNAME: ${{ secrets.CENTRAL_TOKEN_USERNAME }}
+          CENTRAL_TOKEN_PASSWORD: ${{ secrets.CENTRAL_TOKEN_PASSWORD }}
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          missing=""
+          for name in CENTRAL_TOKEN_USERNAME CENTRAL_TOKEN_PASSWORD GPG_PRIVATE_KEY GPG_PASSPHRASE; do
+            eval "value=\${$name}"
+            [ -n "$value" ] || missing="$missing $name"
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::Missing repository secrets:$missing"
+            echo "Set each with: gh secret set <NAME> --repo ${{ github.repository }}" >> "$GITHUB_STEP_SUMMARY"
+            echo "Releases 1.1.0 and 1.2.0 were published by hand because these were never configured," >> "$GITHUB_STEP_SUMMARY"
+            echo "which is how main drifted behind Maven Central. Configure them so releases are reproducible." >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+          echo "All four publishing secrets are present."
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -17,6 +51,27 @@ jobs:
           server-id: central
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
+
+      # The tag is only a label; the version that reaches Central comes from the pom.
+      # When they disagree, v1.3.0 silently publishes 1.4.0 (or worse, republishes an
+      # existing version), which is exactly the ambiguity that let this repo's main and
+      # Maven Central diverge. Refuse rather than guess.
+      - name: Verify the tag matches the pom version
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          pom_version=$(mvn -B -q -DforceStdout help:evaluate -Dexpression=project.version)
+          tag_version="${GITHUB_REF_NAME#v}"
+          echo "tag: $tag_version   pom: $pom_version"
+          if [ "$pom_version" != "$tag_version" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match pom version $pom_version. Bump the pom and re-tag."
+            exit 1
+          fi
+
+      # A tag can point at any commit, including one that never went through a PR, so the
+      # release build runs the suite itself rather than trusting build.yml to have covered it.
+      - name: Build and test
+        run: mvn -B verify
+
       - name: Import GPG key
         run: |
           echo "${GPG_PRIVATE_KEY}" | gpg --batch --import
@@ -24,12 +79,27 @@ jobs:
           echo "max-cache-ttl 7200" >> ~/.gnupg/gpg-agent.conf
         env:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-      # A maintainer must configure CENTRAL_TOKEN_USERNAME, CENTRAL_TOKEN_PASSWORD,
-      # GPG_PRIVATE_KEY and GPG_PASSPHRASE as repo secrets for this to work.
-      # Skip tests to allow drifted/absent test sources; unit tests run in build.yml on PRs.
+
       - name: Publish to Maven Central
         run: mvn -B -Prelease deploy -Dmaven.test.skip=true
         env:
           MAVEN_USERNAME: ${{ secrets.CENTRAL_TOKEN_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.CENTRAL_TOKEN_PASSWORD }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+
+      # autoPublish is false in the release profile, so a green run means the deployment
+      # is VALIDATED AND STAGED, not live. Someone still has to release it in the Central
+      # portal. Said out loud here so a green check is not mistaken for "it is on Central".
+      - name: Say what green actually means
+        run: |
+          {
+            echo "### Staged, not yet live"
+            echo ""
+            echo "\`autoPublish\` is \`false\`, so this upload is validated and **staged**."
+            echo "Release it at https://central.sonatype.com/publishing/deployments for it to appear on Maven Central."
+            echo ""
+            echo "Verify afterwards:"
+            echo '```'
+            echo "curl -s https://repo1.maven.org/maven2/io/github/gero-labs/nexus-java-client/maven-metadata.xml | grep '<latest>'"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
