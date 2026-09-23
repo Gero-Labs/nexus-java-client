@@ -30,12 +30,13 @@ jobs:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
           missing=""
-          for name in CENTRAL_TOKEN_USERNAME CENTRAL_TOKEN_PASSWORD GPG_PRIVATE_KEY GPG_PASSPHRASE; do
+          for name in CENTRAL_TOKEN_USERNAME CENTRAL_TOKEN_PASSWORD GPG_PRIVATE_KEY; do
             eval "value=\${$name}"
             [ -n "$value" ] || missing="$missing $name"
           done
           if [ -n "$missing" ]; then
             echo "::error::Missing repository secrets:$missing"
+            echo "(GPG_PASSPHRASE is deliberately not required: a dedicated release key may be unprotected.)"
             echo "Set each with: gh secret set <NAME> --repo ${{ github.repository }}" >> "$GITHUB_STEP_SUMMARY"
             echo "Releases 1.1.0 and 1.2.0 were published by hand because these were never configured," >> "$GITHUB_STEP_SUMMARY"
             echo "which is how main drifted behind Maven Central. Configure them so releases are reproducible." >> "$GITHUB_STEP_SUMMARY"
@@ -79,6 +80,27 @@ jobs:
           echo "max-cache-ttl 7200" >> ~/.gnupg/gpg-agent.conf
         env:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+
+      # Presence checks cannot tell a correct passphrase from a wrong one, and an
+      # unprotected release key legitimately has none at all. So instead of asserting on
+      # the secret, make the key produce a real signature: this fails in seconds with
+      # "Bad passphrase" rather than part-way through a deploy.
+      - name: Verify the signing key can sign
+        env:
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          key_id=$(gpg --list-secret-keys --with-colons | awk -F: '/^sec:/ {print $5; exit}')
+          if [ -z "$key_id" ]; then
+            echo "::error::No secret key was imported from GPG_PRIVATE_KEY."
+            exit 1
+          fi
+          echo "signing key: $key_id"
+          if ! echo verify | gpg --batch --yes --pinentry-mode loopback \
+                 --passphrase "${GPG_PASSPHRASE}" --local-user "$key_id" --sign -o /dev/null; then
+            echo "::error::The imported key could not sign. If it is passphrase-protected, GPG_PASSPHRASE is missing or wrong; if it is unprotected, leave GPG_PASSPHRASE empty."
+            exit 1
+          fi
+          echo "Signing key works."
 
       - name: Publish to Maven Central
         run: mvn -B -Prelease deploy -Dmaven.test.skip=true
